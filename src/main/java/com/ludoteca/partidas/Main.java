@@ -25,7 +25,12 @@ public class Main {
     private static final String CATALOGO_URL = System.getenv().getOrDefault("CATALOGO_URL", "http://localhost:8001");
 
     public static void main(String[] args) {
-        Javalin app = Javalin.create().start(8002);
+        Javalin app = Javalin.create(config -> {
+        config.staticFiles.add(staticFiles -> {
+            staticFiles.directory = "/public";
+            staticFiles.location = io.javalin.http.staticfiles.Location.CLASSPATH;
+    });
+}).start(8002);
 
         app.get("/", ctx -> ctx.result("OK"));
 

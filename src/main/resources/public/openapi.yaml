@@ -1,0 +1,98 @@
+openapi: 3.0.0
+info:
+  title: Microservicio 2 - Partidas jugadas
+  version: "1.0"
+  description: API de partidas jugadas del proyecto Ludoteca
+servers:
+  - url: /
+paths:
+  /partidas:
+    get:
+      summary: Listar todas las partidas
+      responses:
+        "200":
+          description: Lista de partidas
+    post:
+      summary: Crear una partida
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mesa:
+                  type: integer
+                juego_id:
+                  type: integer
+                fecha:
+                  type: string
+                  example: "2026-09-09"
+                resultado:
+                  type: string
+                jugadores:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        "201":
+          description: Partida creada
+        "400":
+          description: Juego no existe en el catálogo
+        "503":
+          description: No se pudo contactar al Microservicio 1
+  /partidas/{id}:
+    get:
+      summary: Obtener una partida por id, con sus jugadores
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Partida encontrada
+        "404":
+          description: Partida no encontrada
+    put:
+      summary: Actualizar una partida
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mesa:
+                  type: integer
+                juego_id:
+                  type: integer
+                fecha:
+                  type: string
+                resultado:
+                  type: string
+      responses:
+        "200":
+          description: Partida actualizada
+        "404":
+          description: Partida no encontrada
+    delete:
+      summary: Eliminar una partida
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Partida eliminada
+        "404":
+          description: Partida no encontrada
