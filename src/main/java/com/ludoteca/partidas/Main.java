@@ -67,7 +67,7 @@ public class Main {
             String fecha = (String) body.get("fecha");
             String resultado = (String) body.get("resultado");
             List<String> jugadores = (List<String>) body.get("jugadores");
-            /* 
+            
             try {
                 HttpClient client = HttpClient.newHttpClient();
                 HttpRequest request = HttpRequest.newBuilder()
@@ -85,7 +85,7 @@ public class Main {
                 ctx.status(503).json(Map.of("error", "No se pudo contactar al Microservicio 1 (catálogo): " + e.getMessage()));
                 return;
             }
-                */
+            
 
             String sqlInsertPartida = "INSERT INTO partidas (mesa, juego_id, fecha, resultado) VALUES (?, ?, ?, ?) RETURNING id";
 
