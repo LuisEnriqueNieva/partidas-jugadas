@@ -29,8 +29,13 @@ public class Main {
         config.staticFiles.add(staticFiles -> {
             staticFiles.directory = "/public";
             staticFiles.location = io.javalin.http.staticfiles.Location.CLASSPATH;
-    });
-}).start(8002);
+        });
+        config.bundledPlugins.enableCors(cors -> {
+            cors.addRule(it -> {
+                it.anyHost();
+                });
+            });
+        }).start(8002);
 
         app.get("/", ctx -> ctx.result("OK"));
 
