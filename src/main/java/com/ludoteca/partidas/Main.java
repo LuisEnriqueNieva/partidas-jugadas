@@ -39,6 +39,10 @@ public class Main {
 
         app.get("/", ctx -> ctx.result("OK"));
 
+        app.get("/health", ctx -> {
+            ctx.status(200).json(Map.of("status", "ok"));
+        });
+
         app.get("/partidas", ctx -> {
             List<Map<String, Object>> partidas = new ArrayList<>();
             String sql = "SELECT * FROM partidas";
