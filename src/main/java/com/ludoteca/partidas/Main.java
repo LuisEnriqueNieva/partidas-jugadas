@@ -44,12 +44,72 @@ public class Main {
         });
 
         app.get("/partidas", ctx -> {
+            String jugadorFiltro = ctx.queryParam("jugador");
+
+            if (jugadorFiltro != null && !jugadorFiltro.isBlank()) {
+                List<Map<String, Object>> partidasDelJugador = new ArrayList<>();
+                String sqlPartidas = "SELECT p.id, p.mesa, p.juego_id, p.fecha, p.resultado " +
+                        "FROM partidas p " +
+                        "JOIN partida_jugadores pj ON pj.partida_id = p.id " +
+                        "WHERE pj.nombre_jugador = ?";
+
+                try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+
+                    try (PreparedStatement stmt = conn.prepareStatement(sqlPartidas)) {
+                        stmt.setString(1, jugadorFiltro);
+                        ResultSet rs = stmt.executeQuery();
+                        while (rs.next()) {
+                            Map<String, Object> partida = new HashMap<>();
+                            partida.put("id", rs.getInt("id"));
+                            partida.put("mesa", rs.getInt("mesa"));
+                            partida.put("juego_id", rs.getInt("juego_id"));
+                            partida.put("fecha", rs.getDate("fecha").toString());
+                            partida.put("resultado", rs.getString("resultado"));
+                            partida.put("jugadores", new ArrayList<String>());
+                            partidasDelJugador.add(partida);
+                        }
+                    }
+
+                    if (!partidasDelJugador.isEmpty()) {
+                        Map<Integer, Map<String, Object>> porId = new HashMap<>();
+                        Integer[] ids = new Integer[partidasDelJugador.size()];
+                        for (int i = 0; i < partidasDelJugador.size(); i++) {
+                            Map<String, Object> p = partidasDelJugador.get(i);
+                            int id = (int) p.get("id");
+                            ids[i] = id;
+                            porId.put(id, p);
+                        }
+
+                        String sqlJugadores = "SELECT partida_id, nombre_jugador FROM partida_jugadores WHERE partida_id = ANY(?)";
+                        try (PreparedStatement stmt = conn.prepareStatement(sqlJugadores)) {
+                            stmt.setArray(1, conn.createArrayOf("integer", ids));
+                            ResultSet rs = stmt.executeQuery();
+                            while (rs.next()) {
+                                int partidaId = rs.getInt("partida_id");
+                                String nombre = rs.getString("nombre_jugador");
+                                Map<String, Object> partida = porId.get(partidaId);
+                                if (partida != null) {
+                                    @SuppressWarnings("unchecked")
+                                    List<String> jugadores = (List<String>) partida.get("jugadores");
+                                    jugadores.add(nombre);
+                                }
+                            }
+                        }
+                    }
+
+                    ctx.json(partidasDelJugador);
+
+                } catch (Exception e) {
+                    ctx.status(500).json(Map.of("error", "Error obteniendo partidas del jugador: " + e.getMessage()));
+                }
+                return;
+            }
+
             List<Map<String, Object>> partidas = new ArrayList<>();
             String sql = "SELECT * FROM partidas";
-            System.out.println("DEBUG-BYTES=" + java.util.Arrays.toString(DB_USER.getBytes()));
             try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-                 PreparedStatement stmt = conn.prepareStatement(sql);
-                 ResultSet rs = stmt.executeQuery()) {
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()) {
 
                 while (rs.next()) {
                     Map<String, Object> partida = new HashMap<>();
