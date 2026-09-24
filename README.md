@@ -28,8 +28,6 @@ Administra las partidas jugadas en la ludoteca: mesa, juego, fecha, resultado y 
 | partida_id      | integer (FK → partidas.id)              |
 | nombre_jugador  | varchar(255)                            |
 
-> `nombre_jugador` es texto libre, pero debe corresponder al nombre de un cliente real registrado en MS3 (membresías-reservas) — no todo cliente tiene que haber jugado, pero todo jugador debe existir como cliente. Esta relación no está forzada por una foreign key (es texto, no un `cliente_id`), así que hay que mantenerla consistente a mano al insertar datos.
-
 ## Variables de entorno
 
 | Variable       | Default                          | Descripción                                  |
@@ -65,8 +63,6 @@ Body de `POST /partidas`:
   "jugadores": ["Ana", "Carlos"]
 }
 ```
-
-> Importante: `resultado` es texto libre — el servicio NO valida que el nombre mencionado en "Ganó X" sea uno de los `jugadores` enviados. Esa consistencia hay que garantizarla desde quien llama al endpoint (frontend o script de carga de datos).
 
 ## Documentación interactiva
 
